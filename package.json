@@ -4,9 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "test": "jest",
+  "test:watch": "jest --watch",
+  "lint": "eslint src tests",
+  "lint:fix": "eslint src tests --fix",
+  "format": "prettier --write src tests"
+},
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "eslint": "^9.29.0",
+    "jest": "^30.0.0",
+    "prettier": "^3.5.3"
+  }
 }
