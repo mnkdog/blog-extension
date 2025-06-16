@@ -15,6 +15,10 @@ class DraftStorage {
   list() {
     return this.drafts;
   }
+
+  delete(id) {
+    delete this.drafts[id];
+  }
 }
 
 module.exports = DraftStorage;
