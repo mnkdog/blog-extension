@@ -27,3 +27,12 @@ test('should list all saved drafts', () => {
     'post-2': { title: 'Second Post', content: 'Content 2' }
   });
 });
+
+
+test('should return undefined for non-existent drafts', () => {
+  const storage = new DraftStorage();
+  
+  const result = storage.load('does-not-exist');
+  
+  expect(result).toBeUndefined();
+});
