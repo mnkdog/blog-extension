@@ -1,1 +1,14 @@
-{"testEnvironment": "node"}
+{
+  "testEnvironment": "node",
+  "testEnvironmentOptions": {},
+  "projects": [
+    {
+      "testEnvironment": "node",
+      "testMatch": ["**/tests/storage.test.js", "**/tests/manifest.test.js", "**/tests/popup.test.js"]
+    },
+    {
+      "testEnvironment": "jsdom",
+      "testMatch": ["**/tests/popup-functionality.test.js"]
+    }
+  ]
+}
