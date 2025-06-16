@@ -36,3 +36,15 @@ test('should return undefined for non-existent drafts', () => {
   
   expect(result).toBeUndefined();
 });
+
+
+test('should delete a draft', () => {
+  const storage = new DraftStorage();
+  
+  storage.save('temp-post', { title: 'Temporary', content: 'Delete me' });
+  expect(storage.load('temp-post')).toBeDefined();
+  
+  storage.delete('temp-post');
+  
+  expect(storage.load('temp-post')).toBeUndefined();
+});
