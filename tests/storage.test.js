@@ -12,3 +12,18 @@ describe('DraftStorage', () => {
     expect(saved).toEqual(draft);
   });
 });
+
+
+test('should list all saved drafts', () => {
+  const storage = new DraftStorage();
+  
+  storage.save('post-1', { title: 'First Post', content: 'Content 1' });
+  storage.save('post-2', { title: 'Second Post', content: 'Content 2' });
+  
+  const drafts = storage.list();
+  
+  expect(drafts).toEqual({
+    'post-1': { title: 'First Post', content: 'Content 1' },
+    'post-2': { title: 'Second Post', content: 'Content 2' }
+  });
+});
