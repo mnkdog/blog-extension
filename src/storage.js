@@ -11,6 +11,10 @@ class DraftStorage {
   load(id) {
     return this.drafts[id];
   }
+
+  list() {
+    return this.drafts;
+  }
 }
 
 module.exports = DraftStorage;
