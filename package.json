@@ -4,12 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "test": "jest",
-  "test:watch": "jest --watch",
-  "lint": "eslint src tests",
-  "lint:fix": "eslint src tests --fix",
-  "format": "prettier --write src tests"
-},
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint src tests",
+    "lint:fix": "eslint src tests --fix",
+    "format": "prettier --write src tests"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -17,6 +17,7 @@
     "@types/jest": "^30.0.0",
     "eslint": "^9.29.0",
     "jest": "^30.0.0",
+    "jest-environment-jsdom": "^30.0.0",
     "prettier": "^3.5.3"
   }
 }
