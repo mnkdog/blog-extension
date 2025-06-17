@@ -44,3 +44,35 @@ describe('Draft List', () => {
     expect(draftsList.innerHTML).toContain('Second draft content');
   });
 });
+
+  test('should load draft into editor when clicked', () => {
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Pre-populate a draft
+    localStorage.setItem('draft_post1', JSON.stringify({
+      content: 'Click me to load this content',
+      created: '2025-01-01T10:00:00Z'
+    }));
+    
+    // Load the HTML
+    const html = fs.readFileSync(path.join(__dirname, '../src/popup.html'), 'utf8');
+    document.body.innerHTML = html;
+    
+    // Load scripts
+    require('../src/browser-storage');
+    require('../src/popup');
+    
+    // Trigger DOMContentLoaded
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+    
+    // Find and click the draft item
+    const draftItem = document.querySelector('.draft-item');
+    expect(draftItem).toBeTruthy();
+    
+    draftItem.click();
+    
+    // Check that content was loaded into textarea
+    const textarea = document.getElementById('content');
+    expect(textarea.value).toBe('Click me to load this content');
+  });
