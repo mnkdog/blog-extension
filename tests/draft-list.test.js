@@ -76,3 +76,47 @@ describe('Draft List', () => {
     const textarea = document.getElementById('content');
     expect(textarea.value).toBe('Click me to load this content');
   });
+
+  test('should delete draft when delete button is clicked', () => {
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Pre-populate drafts
+    localStorage.setItem('draft_post1', JSON.stringify({
+      content: 'First draft to delete',
+      created: '2025-01-01T10:00:00Z'
+    }));
+    localStorage.setItem('draft_post2', JSON.stringify({
+      content: 'Second draft to keep',
+      created: '2025-01-02T10:00:00Z'
+    }));
+    
+    // Load the HTML
+    const html = fs.readFileSync(path.join(__dirname, '../src/popup.html'), 'utf8');
+    document.body.innerHTML = html;
+    
+    // Load scripts
+    require('../src/browser-storage');
+    require('../src/popup');
+    
+    // Trigger DOMContentLoaded
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+    
+    // Should have 2 drafts initially
+    const draftItems = document.querySelectorAll('.draft-item');
+    expect(draftItems.length).toBe(2);
+    
+    // Find and click the delete button on the first draft
+    const deleteButton = document.querySelector('.delete-btn');
+    expect(deleteButton).toBeTruthy();
+    
+    deleteButton.click();
+    
+    // Should now have only 1 draft
+    const remainingDrafts = document.querySelectorAll('.draft-item');
+    expect(remainingDrafts.length).toBe(1);
+    
+    // Should contain the second draft content
+    expect(document.body.innerHTML).toContain('Second draft to keep');
+    expect(document.body.innerHTML).not.toContain('First draft to delete');
+  });
