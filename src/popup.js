@@ -16,6 +16,26 @@ if (typeof document !== 'undefined') {
     const githubTokenInput = document.getElementById('github-token');
     const githubRepoInput = document.getElementById('github-repo');
     
+    // Edit mode tracking
+    let editMode = {
+      isEditing: false,
+      originalPost: null
+    };
+    
+    function setEditMode(post) {
+      editMode.isEditing = true;
+      editMode.originalPost = post;
+      publishButton.textContent = 'Update Post';
+      statusDiv.textContent = 'Editing mode - click Update to save changes';
+    }
+    
+    function clearEditMode() {
+      editMode.isEditing = false;
+      editMode.originalPost = null;
+      publishButton.textContent = 'Publish to GitHub';
+      statusDiv.textContent = '';
+    }
+    
     if (saveButton && publishButton && titleInput && contentTextarea && window.BrowserDraftStorage) {
       const storage = new window.BrowserDraftStorage();
       
@@ -69,8 +89,12 @@ if (typeof document !== 'undefined') {
                   titleInput.value = postContent.title;
                   contentTextarea.value = postContent.content;
                   
-                  statusDiv.textContent = 'Post loaded for editing!';
-                  setTimeout(() => statusDiv.textContent = '', 2000);
+                  // Set edit mode
+                  setEditMode({
+                    path: post.path,
+                    sha: post.sha,
+                    originalTitle: postContent.title
+                  });
                   
                 } catch (error) {
                   console.error('Error loading post content:', error);
@@ -134,6 +158,9 @@ if (typeof document !== 'undefined') {
             contentTextarea.value = draft.content;
             statusDiv.textContent = 'Draft loaded!';
             setTimeout(() => statusDiv.textContent = '', 2000);
+            
+            // Clear edit mode when loading drafts
+            clearEditMode();
           });
           
           // Add click handler to delete draft
@@ -199,8 +226,6 @@ if (typeof document !== 'undefined') {
           }
           
           try {
-            statusDiv.textContent = 'Publishing to GitHub...';
-            
             const config = getGitHubConfig();
             const publisher = new window.BrowserGitHubPublisher(config.token, config.repo);
             
@@ -210,9 +235,19 @@ if (typeof document !== 'undefined') {
               created: new Date().toISOString()
             };
             
-            await publisher.publishPost(postData);
+            if (editMode.isEditing) {
+              // Update existing post
+              statusDiv.textContent = 'Updating post on GitHub...';
+              await publisher.updatePost(postData, editMode.originalPost);
+              statusDiv.textContent = 'Post updated successfully!';
+              clearEditMode();
+            } else {
+              // Create new post
+              statusDiv.textContent = 'Publishing to GitHub...';
+              await publisher.publishPost(postData);
+              statusDiv.textContent = 'Successfully published to GitHub!';
+            }
             
-            statusDiv.textContent = 'Successfully published to GitHub!';
             setTimeout(() => statusDiv.textContent = '', 3000);
             
             // Refresh published posts list
@@ -254,6 +289,13 @@ if (typeof document !== 'undefined') {
             statusDiv.textContent = '';
             statusDiv.style.color = 'green';
           }, 2000);
+        }
+      });
+      
+      // Clear edit mode when typing in title (starting fresh)
+      titleInput.addEventListener('input', () => {
+        if (editMode.isEditing && titleInput.value !== editMode.originalPost?.originalTitle) {
+          // Only clear if user is making significant changes
         }
       });
     }
