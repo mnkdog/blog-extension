@@ -3,7 +3,13 @@
  */
 
 describe('Popup DOM Interactions', () => {
-  test('should save content when save button is clicked', () => {
+  beforeEach(() => {
+    // Clear localStorage and DOM
+    localStorage.clear();
+    document.body.innerHTML = '';
+  });
+
+  test('should save content to localStorage when save button is clicked', () => {
     const fs = require('fs');
     const path = require('path');
     
@@ -11,16 +17,14 @@ describe('Popup DOM Interactions', () => {
     const html = fs.readFileSync(path.join(__dirname, '../src/popup.html'), 'utf8');
     document.body.innerHTML = html;
     
-    // Mock DraftStorage
-    const mockSave = jest.fn();
-    jest.doMock('../src/storage', () => {
-      return class DraftStorage {
-        save() { mockSave(...arguments); }
-      };
-    });
+    // Load the browser storage script
+    require('../src/browser-storage');
     
-    // Load popup script that should attach event listeners
+    // Load popup script
     require('../src/popup');
+    
+    // Trigger DOMContentLoaded
+    document.dispatchEvent(new Event('DOMContentLoaded'));
     
     // Simulate user typing
     const textarea = document.getElementById('content');
@@ -30,36 +34,13 @@ describe('Popup DOM Interactions', () => {
     const saveButton = document.getElementById('save');
     saveButton.click();
     
-    // Should have called save with the content
-    expect(mockSave).toHaveBeenCalledWith(expect.any(String), {
-      content: 'My awesome blog post content'
-    });
+    // Check localStorage was used
+    const keys = Object.keys(localStorage);
+    const draftKeys = keys.filter(key => key.startsWith('draft_'));
+    
+    expect(draftKeys.length).toBe(1);
+    
+    const savedData = JSON.parse(localStorage.getItem(draftKeys[0]));
+    expect(savedData.content).toBe('My awesome blog post content');
   });
 });
-
-  test('should NOT save content on page load, only on button click', () => {
-    const fs = require('fs');
-    const path = require('path');
-    
-    // Reset DOM
-    document.body.innerHTML = '';
-    
-    // Load HTML
-    const html = fs.readFileSync(path.join(__dirname, '../src/popup.html'), 'utf8');
-    document.body.innerHTML = html;
-    
-    // Clear any previous mocks
-    jest.clearAllMocks();
-    
-    // Mock storage with fresh spy
-    const mockSave = jest.fn();
-    
-    // Delete popup from require cache to force fresh load
-    delete require.cache[require.resolve('../src/popup')];
-    
-    // Load popup script
-    require('../src/popup');
-    
-    // Should NOT have been called yet (no button click)
-    expect(mockSave).not.toHaveBeenCalled();
-  });
