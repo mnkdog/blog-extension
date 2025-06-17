@@ -24,6 +24,12 @@ if (typeof document !== 'undefined') {
         return config !== null;
       }
       
+      // Get GitHub configuration
+      function getGitHubConfig() {
+        const config = localStorage.getItem('github-config');
+        return config ? JSON.parse(config) : null;
+      }
+      
       // Function to update drafts list
       function updateDraftsList() {
         const drafts = storage.list();
@@ -105,14 +111,51 @@ if (typeof document !== 'undefined') {
       });
       
       // Publish to GitHub functionality
-      publishButton.addEventListener('click', () => {
+      publishButton.addEventListener('click', async () => {
         if (!isGitHubConfigured()) {
           // Show configuration form
           githubConfig.style.display = 'block';
           statusDiv.textContent = 'Configure GitHub settings below';
         } else {
-          // TODO: Actually publish to GitHub
-          statusDiv.textContent = 'Publishing to GitHub...';
+          const title = titleInput.value.trim();
+          const content = contentTextarea.value.trim();
+          
+          if (!title || !content) {
+            statusDiv.textContent = 'Please enter both title and content';
+            statusDiv.style.color = 'red';
+            setTimeout(() => {
+              statusDiv.textContent = '';
+              statusDiv.style.color = 'green';
+            }, 2000);
+            return;
+          }
+          
+          try {
+            statusDiv.textContent = 'Publishing to GitHub...';
+            
+            const config = getGitHubConfig();
+            const publisher = new window.BrowserGitHubPublisher(config.token, config.repo);
+            
+            const postData = {
+              title: title,
+              content: content,
+              created: new Date().toISOString()
+            };
+            
+            await publisher.publishPost(postData);
+            
+            statusDiv.textContent = 'Successfully published to GitHub!';
+            setTimeout(() => statusDiv.textContent = '', 3000);
+            
+          } catch (error) {
+            console.error('Publishing error:', error);
+            statusDiv.textContent = `Error: ${error.message}`;
+            statusDiv.style.color = 'red';
+            setTimeout(() => {
+              statusDiv.textContent = '';
+              statusDiv.style.color = 'green';
+            }, 3000);
+          }
         }
       });
       
