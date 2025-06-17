@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <title>Blog Extension</title>
     <style>
-        body { width: 400px; height: 400px; padding: 10px; }
+        body { width: 400px; height: 450px; padding: 10px; }
+        #title { width: 100%; margin-bottom: 10px; padding: 5px; }
         #content { width: 100%; height: 150px; }
         #status { margin-top: 10px; color: green; font-size: 12px; }
         #drafts-list { margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px; }
@@ -13,6 +14,7 @@
 </head>
 <body>
     <h3>Write Blog Post</h3>
+    <input type="text" id="title" placeholder="Enter post title..." />
     <textarea id="content" placeholder="Write your blog post here..."></textarea>
     <button id="save">Save Draft</button>
     <div id="status"></div>
