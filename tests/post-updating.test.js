@@ -10,8 +10,8 @@ describe('Post Updating', () => {
         })
       });
 
-    const BrowserGitHubPublisher = require('../src/browser-github-publisher');
-    const publisher = new BrowserGitHubPublisher('test-token', 'user/repo');
+    const GitHubPublisher = require('../src/github-publisher');
+    const publisher = new GitHubPublisher('test-token', 'user/repo');
     
     const postData = {
       title: 'Updated Post Title',

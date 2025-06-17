@@ -84,6 +84,34 @@ ${content}`;
         downloadUrl: file.download_url
       }));
   }
+
+  async updatePost(postData, existingPost) {
+    const markdown = this.createMarkdown(postData);
+    
+    // GitHub API expects base64 encoded content
+    const base64Content = btoa(markdown);
+    
+    const url = `https://api.github.com/repos/${this.repo}/contents/${existingPost.path}`;
+    
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${this.token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: `Update post: ${postData.title}`,
+        content: base64Content,
+        sha: existingPost.sha
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`GitHub API error: ${response.status}`);
+    }
+
+    return response.json();
+  }
 }
 
 module.exports = GitHubPublisher;
