@@ -6,12 +6,22 @@ if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     const saveButton = document.getElementById('save');
     const contentTextarea = document.getElementById('content');
+    const statusDiv = document.getElementById('status');
     
-    if (saveButton && contentTextarea) {
+    if (saveButton && contentTextarea && window.BrowserDraftStorage) {
+      const storage = new window.BrowserDraftStorage();
+      
       saveButton.addEventListener('click', () => {
-        const content = contentTextarea.value;
-        console.log('Saving:', content);
-        // TODO: Save to storage when we implement browser-compatible storage
+        const content = contentTextarea.value.trim();
+        if (content) {
+          const timestamp = Date.now();
+          storage.save(`draft_${timestamp}`, { 
+            content: content,
+            created: new Date().toISOString()
+          });
+          statusDiv.textContent = 'Draft saved!';
+          setTimeout(() => statusDiv.textContent = '', 2000);
+        }
       });
     }
   });

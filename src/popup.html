@@ -6,11 +6,16 @@
     <style>
         body { width: 400px; height: 300px; padding: 10px; }
         #content { width: 100%; height: 200px; }
+        #status { margin-top: 10px; color: green; font-size: 12px; }
     </style>
 </head>
 <body>
     <h3>Write Blog Post</h3>
     <textarea id="content" placeholder="Write your blog post here..."></textarea>
     <button id="save">Save Draft</button>
+    <div id="status"></div>
+    
+    <script src="browser-storage.js"></script>
+    <script src="popup.js"></script>
 </body>
 </html>
