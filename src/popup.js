@@ -18,10 +18,19 @@ if (typeof document !== 'undefined') {
         const draftsContainer = draftsList.querySelector('div') || document.createElement('div');
         draftsContainer.innerHTML = '';
         
-        Object.entries(drafts).forEach(([, draft]) => {  // Use _ to indicate unused parameter
+        Object.entries(drafts).forEach(([draftId, draft]) => {
           const draftDiv = document.createElement('div');
           draftDiv.className = 'draft-item';
           draftDiv.innerHTML = `<div>${draft.content.substring(0, 50)}...</div>`;
+          draftDiv.style.cursor = 'pointer';
+          
+          // Add click handler to load draft
+          draftDiv.addEventListener('click', () => {
+            contentTextarea.value = draft.content;
+            statusDiv.textContent = 'Draft loaded!';
+            setTimeout(() => statusDiv.textContent = '', 2000);
+          });
+          
           draftsContainer.appendChild(draftDiv);
         });
         
