@@ -40,6 +40,50 @@ ${content}`;
       path: path
     };
   }
+
+  parseTitleFromFilename(filename) {
+    // Remove .md extension and date prefix
+    const nameWithoutExt = filename.replace('.md', '');
+    const withoutDate = nameWithoutExt.replace(/^\d{4}-\d{2}-\d{2}-/, '');
+    
+    // Convert kebab-case to Title Case
+    return withoutDate
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+
+  async fetchExistingPosts() {
+    const url = `https://api.github.com/repos/${this.repo}/contents/posts`;
+    
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `token ${this.token}`,
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        // Posts directory doesn't exist yet
+        return [];
+      }
+      throw new Error(`GitHub API error: ${response.status}`);
+    }
+
+    const files = await response.json();
+    
+    // Filter for markdown files and transform to our format
+    return files
+      .filter(file => file.name.endsWith('.md'))
+      .map(file => ({
+        filename: file.name,
+        title: this.parseTitleFromFilename(file.name),
+        path: file.path,
+        sha: file.sha,
+        downloadUrl: file.download_url
+      }));
+  }
 }
 
 module.exports = GitHubPublisher;
