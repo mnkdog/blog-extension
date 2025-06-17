@@ -26,7 +26,16 @@ describe('Draft List', () => {
     const html = fs.readFileSync(path.join(__dirname, '../src/popup.html'), 'utf8');
     document.body.innerHTML = html;
     
-    // Should have a drafts list element
+    // Load the browser storage script
+    require('../src/browser-storage');
+    
+    // Load popup script
+    require('../src/popup');
+    
+    // Trigger DOMContentLoaded to run the popup script
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+    
+    // Now check for the drafts list
     const draftsList = document.getElementById('drafts-list');
     expect(draftsList).toBeTruthy();
     
