@@ -18,19 +18,47 @@ if (typeof document !== 'undefined') {
         const draftsContainer = draftsList.querySelector('div') || document.createElement('div');
         draftsContainer.innerHTML = '';
         
-        Object.entries(drafts).forEach(([, draft]) => {
+        Object.entries(drafts).forEach(([draftId, draft]) => {
           const draftDiv = document.createElement('div');
           draftDiv.className = 'draft-item';
-          draftDiv.innerHTML = `<div>${draft.content.substring(0, 50)}...</div>`;
           draftDiv.style.cursor = 'pointer';
+          draftDiv.style.display = 'flex';
+          draftDiv.style.justifyContent = 'space-between';
+          draftDiv.style.alignItems = 'center';
           
-          // Add click handler to load draft
-          draftDiv.addEventListener('click', () => {
+          const contentDiv = document.createElement('div');
+          contentDiv.textContent = `${draft.content.substring(0, 50)}...`;
+          contentDiv.style.flex = '1';
+          
+          const deleteBtn = document.createElement('button');
+          deleteBtn.textContent = '×';
+          deleteBtn.className = 'delete-btn';
+          deleteBtn.style.marginLeft = '10px';
+          deleteBtn.style.backgroundColor = '#ff4444';
+          deleteBtn.style.color = 'white';
+          deleteBtn.style.border = 'none';
+          deleteBtn.style.borderRadius = '3px';
+          deleteBtn.style.padding = '2px 6px';
+          deleteBtn.style.cursor = 'pointer';
+          
+          // Add click handler to load draft (only on content area)
+          contentDiv.addEventListener('click', () => {
             contentTextarea.value = draft.content;
             statusDiv.textContent = 'Draft loaded!';
             setTimeout(() => statusDiv.textContent = '', 2000);
           });
           
+          // Add click handler to delete draft
+          deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent loading the draft
+            storage.delete(draftId);
+            statusDiv.textContent = 'Draft deleted!';
+            setTimeout(() => statusDiv.textContent = '', 2000);
+            updateDraftsList(); // Refresh the list
+          });
+          
+          draftDiv.appendChild(contentDiv);
+          draftDiv.appendChild(deleteBtn);
           draftsContainer.appendChild(draftDiv);
         });
         
