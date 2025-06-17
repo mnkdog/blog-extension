@@ -50,7 +50,6 @@ describe('GitHub Publish UI', () => {
     expect(document.getElementById('github-token')).toBeTruthy();
     expect(document.getElementById('github-repo')).toBeTruthy();
   });
-});
 
   test('should save GitHub configuration when save config is clicked', () => {
     const fs = require('fs');
@@ -115,8 +114,9 @@ describe('GitHub Publish UI', () => {
     const html = fs.readFileSync(path.join(__dirname, '../src/popup.html'), 'utf8');
     document.body.innerHTML = html;
     
-    // Load scripts
+    // Load scripts in correct order
     require('../src/browser-storage');
+    require('../src/browser-github-publisher');
     require('../src/popup');
     
     // Trigger DOMContentLoaded
@@ -146,3 +146,4 @@ describe('GitHub Publish UI', () => {
       })
     );
   });
+});
