@@ -135,9 +135,13 @@ describe('GitHub Publish UI', () => {
     // Wait a moment for async operations
     await new Promise(resolve => setTimeout(resolve, 100));
     
+    // Get today's date for the expected filename
+    const today = new Date().toISOString().split('T')[0];
+    const expectedUrl = `https://api.github.com/repos/user/test-repo/contents/posts/${today}-test-blog-post.md`;
+    
     // Should have called GitHub API
     expect(fetch).toHaveBeenCalledWith(
-      'https://api.github.com/repos/user/test-repo/contents/posts/2025-01-17-test-blog-post.md',
+      expectedUrl,
       expect.objectContaining({
         method: 'PUT',
         headers: expect.objectContaining({
