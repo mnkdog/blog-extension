@@ -5,11 +5,12 @@ if (typeof document !== 'undefined') {
   // Add event listener when DOM is ready
   document.addEventListener('DOMContentLoaded', () => {
     const saveButton = document.getElementById('save');
+    const titleInput = document.getElementById('title');
     const contentTextarea = document.getElementById('content');
     const statusDiv = document.getElementById('status');
     const draftsList = document.getElementById('drafts-list');
     
-    if (saveButton && contentTextarea && window.BrowserDraftStorage) {
+    if (saveButton && titleInput && contentTextarea && window.BrowserDraftStorage) {
       const storage = new window.BrowserDraftStorage();
       
       // Function to update drafts list
@@ -27,7 +28,9 @@ if (typeof document !== 'undefined') {
           draftDiv.style.alignItems = 'center';
           
           const contentDiv = document.createElement('div');
-          contentDiv.textContent = `${draft.content.substring(0, 50)}...`;
+          const displayTitle = draft.title || 'Untitled';
+          const displayContent = draft.content.substring(0, 30);
+          contentDiv.textContent = `${displayTitle} - ${displayContent}...`;
           contentDiv.style.flex = '1';
           
           const deleteBtn = document.createElement('button');
@@ -43,6 +46,7 @@ if (typeof document !== 'undefined') {
           
           // Add click handler to load draft (only on content area)
           contentDiv.addEventListener('click', () => {
+            titleInput.value = draft.title || '';
             contentTextarea.value = draft.content;
             statusDiv.textContent = 'Draft loaded!';
             setTimeout(() => statusDiv.textContent = '', 2000);
@@ -71,10 +75,12 @@ if (typeof document !== 'undefined') {
       updateDraftsList();
       
       saveButton.addEventListener('click', () => {
+        const title = titleInput.value.trim();
         const content = contentTextarea.value.trim();
         if (content) {
           const timestamp = Date.now();
           storage.save(`draft_${timestamp}`, { 
+            title: title,
             content: content,
             created: new Date().toISOString()
           });
