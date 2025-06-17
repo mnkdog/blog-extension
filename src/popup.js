@@ -1,6 +1,16 @@
 // Popup script for blog extension
 const DraftStorage = require('./storage');
 
-// Initialize storage and save something to make test pass
+// Initialize storage
 const storage = new DraftStorage();
-storage.save('test', { title: 'test', content: 'test' });
+
+// Add event listener when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  const saveButton = document.getElementById('save');
+  const contentTextarea = document.getElementById('content');
+  
+  saveButton.addEventListener('click', () => {
+    const content = contentTextarea.value;
+    storage.save('current-draft', { content: content });
+  });
+});
