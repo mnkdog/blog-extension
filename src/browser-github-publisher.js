@@ -38,6 +38,24 @@ ${content}`;
       .join(' ');
   }
 
+  parseContentFromMarkdown(markdown) {
+    // Remove the first line (title) and any leading newlines
+    const lines = markdown.split('\n');
+    const titleIndex = lines.findIndex(line => line.startsWith('# '));
+    
+    if (titleIndex >= 0) {
+      const title = lines[titleIndex].replace('# ', '');
+      const content = lines.slice(titleIndex + 1)
+        .join('\n')
+        .replace(/^\n+/, '') // Remove leading newlines
+        .replace(/\n+$/, ''); // Remove trailing newlines
+      
+      return { title, content };
+    }
+    
+    return { title: '', content: markdown };
+  }
+
   async fetchExistingPosts() {
     const url = `https://api.github.com/repos/${this.repo}/contents/posts`;
     
@@ -68,6 +86,17 @@ ${content}`;
         sha: file.sha,
         downloadUrl: file.download_url
       }));
+  }
+
+  async fetchPostContent(downloadUrl) {
+    const response = await fetch(downloadUrl);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch post content: ${response.status}`);
+    }
+    
+    const markdown = await response.text();
+    return this.parseContentFromMarkdown(markdown);
   }
 
   async publishPost(postData) {

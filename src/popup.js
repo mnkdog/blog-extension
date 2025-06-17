@@ -59,6 +59,30 @@ if (typeof document !== 'undefined') {
               editBtn.textContent = 'Edit';
               editBtn.className = 'edit-btn';
               
+              // Add click handler to edit button
+              editBtn.addEventListener('click', async () => {
+                try {
+                  statusDiv.textContent = 'Loading post content...';
+                  
+                  const postContent = await publisher.fetchPostContent(post.downloadUrl);
+                  
+                  titleInput.value = postContent.title;
+                  contentTextarea.value = postContent.content;
+                  
+                  statusDiv.textContent = 'Post loaded for editing!';
+                  setTimeout(() => statusDiv.textContent = '', 2000);
+                  
+                } catch (error) {
+                  console.error('Error loading post content:', error);
+                  statusDiv.textContent = `Error: ${error.message}`;
+                  statusDiv.style.color = 'red';
+                  setTimeout(() => {
+                    statusDiv.textContent = '';
+                    statusDiv.style.color = 'green';
+                  }, 3000);
+                }
+              });
+              
               postDiv.appendChild(titleSpan);
               postDiv.appendChild(editBtn);
               postsContainer.appendChild(postDiv);
