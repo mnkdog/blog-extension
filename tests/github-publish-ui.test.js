@@ -51,3 +51,42 @@ describe('GitHub Publish UI', () => {
     expect(document.getElementById('github-repo')).toBeTruthy();
   });
 });
+
+  test('should save GitHub configuration when save config is clicked', () => {
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Load the HTML
+    const html = fs.readFileSync(path.join(__dirname, '../src/popup.html'), 'utf8');
+    document.body.innerHTML = html;
+    
+    // Load scripts
+    require('../src/browser-storage');
+    require('../src/popup');
+    
+    // Trigger DOMContentLoaded
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+    
+    // Show config form
+    const publishButton = document.getElementById('publish');
+    publishButton.click();
+    
+    // Fill in configuration
+    const tokenInput = document.getElementById('github-token');
+    const repoInput = document.getElementById('github-repo');
+    const saveConfigButton = document.getElementById('save-config');
+    
+    tokenInput.value = 'test-token-123';
+    repoInput.value = 'username/my-blog';
+    
+    // Click save config
+    saveConfigButton.click();
+    
+    // Should save to localStorage
+    const savedConfig = localStorage.getItem('github-config');
+    expect(savedConfig).toBeTruthy();
+    
+    const config = JSON.parse(savedConfig);
+    expect(config.token).toBe('test-token-123');
+    expect(config.repo).toBe('username/my-blog');
+  });
