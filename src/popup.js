@@ -43,10 +43,8 @@ if (typeof document !== 'undefined') {
           const publisher = new window.BrowserGitHubPublisher(config.token, config.repo);
           const posts = await publisher.fetchExistingPosts();
           
-          let postsHTML = '<h4>Published Posts</h4>';
-          
           if (posts.length === 0) {
-            postsHTML += '<p>No published posts found</p>';
+            publishedPostsSection.innerHTML = '<h4>Published Posts</h4><p>No published posts found</p>';
           } else {
             const postsContainer = document.createElement('div');
             posts.forEach(post => {
