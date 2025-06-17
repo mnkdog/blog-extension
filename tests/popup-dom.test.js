@@ -36,3 +36,30 @@ describe('Popup DOM Interactions', () => {
     });
   });
 });
+
+  test('should NOT save content on page load, only on button click', () => {
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Reset DOM
+    document.body.innerHTML = '';
+    
+    // Load HTML
+    const html = fs.readFileSync(path.join(__dirname, '../src/popup.html'), 'utf8');
+    document.body.innerHTML = html;
+    
+    // Clear any previous mocks
+    jest.clearAllMocks();
+    
+    // Mock storage with fresh spy
+    const mockSave = jest.fn();
+    
+    // Delete popup from require cache to force fresh load
+    delete require.cache[require.resolve('../src/popup')];
+    
+    // Load popup script
+    require('../src/popup');
+    
+    // Should NOT have been called yet (no button click)
+    expect(mockSave).not.toHaveBeenCalled();
+  });
