@@ -18,7 +18,7 @@ if (typeof document !== 'undefined') {
         const draftsContainer = draftsList.querySelector('div') || document.createElement('div');
         draftsContainer.innerHTML = '';
         
-        Object.entries(drafts).forEach(([id, draft]) => {
+        Object.entries(drafts).forEach(([, draft]) => {  // Use _ to indicate unused parameter
           const draftDiv = document.createElement('div');
           draftDiv.className = 'draft-item';
           draftDiv.innerHTML = `<div>${draft.content.substring(0, 50)}...</div>`;
