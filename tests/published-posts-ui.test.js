@@ -69,3 +69,67 @@ describe('Published Posts UI', () => {
     expect(publishedSection.innerHTML).toContain('My Test Post');
   });
 });
+
+  test('should load post content when edit button is clicked', async () => {
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Mock GitHub API for fetching posts
+    global.fetch = jest.fn()
+      .mockImplementationOnce(() =>
+        Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([
+            {
+              name: '2025-06-17-test-post.md',
+              path: 'posts/2025-06-17-test-post.md',
+              sha: 'abc123',
+              download_url: 'https://raw.githubusercontent.com/user/repo/main/posts/2025-06-17-test-post.md'
+            }
+          ])
+        })
+      )
+      .mockImplementationOnce(() =>
+        Promise.resolve({
+          ok: true,
+          text: () => Promise.resolve('# Test Post\n\nThis is the content of the test post.')
+        })
+      );
+    
+    // Pre-configure GitHub settings
+    localStorage.setItem('github-config', JSON.stringify({
+      token: 'test-token',
+      repo: 'user/test-repo'
+    }));
+    
+    // Load the HTML
+    const html = fs.readFileSync(path.join(__dirname, '../src/popup.html'), 'utf8');
+    document.body.innerHTML = html;
+    
+    // Load scripts
+    require('../src/browser-storage');
+    require('../src/browser-github-publisher');
+    require('../src/popup');
+    
+    // Trigger DOMContentLoaded
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+    
+    // Wait for posts to load
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Click the edit button
+    const editButton = document.querySelector('.edit-btn');
+    expect(editButton).toBeTruthy();
+    
+    editButton.click();
+    
+    // Wait for content to load
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Should load content into the editor
+    const titleInput = document.getElementById('title');
+    const contentTextarea = document.getElementById('content');
+    
+    expect(titleInput.value).toBe('Test Post');
+    expect(contentTextarea.value).toBe('This is the content of the test post.');
+  });
