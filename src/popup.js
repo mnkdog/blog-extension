@@ -5,12 +5,14 @@ if (typeof document !== 'undefined') {
   // Add event listener when DOM is ready
   document.addEventListener('DOMContentLoaded', () => {
     const saveButton = document.getElementById('save');
+    const publishButton = document.getElementById('publish');
     const titleInput = document.getElementById('title');
     const contentTextarea = document.getElementById('content');
     const statusDiv = document.getElementById('status');
     const draftsList = document.getElementById('drafts-list');
+    const githubConfig = document.getElementById('github-config');
     
-    if (saveButton && titleInput && contentTextarea && window.BrowserDraftStorage) {
+    if (saveButton && publishButton && titleInput && contentTextarea && window.BrowserDraftStorage) {
       const storage = new window.BrowserDraftStorage();
       
       // Function to update drafts list
@@ -74,6 +76,7 @@ if (typeof document !== 'undefined') {
       // Load drafts on startup
       updateDraftsList();
       
+      // Save draft functionality
       saveButton.addEventListener('click', () => {
         const title = titleInput.value.trim();
         const content = contentTextarea.value.trim();
@@ -90,6 +93,13 @@ if (typeof document !== 'undefined') {
           // Update the drafts list
           updateDraftsList();
         }
+      });
+      
+      // Publish to GitHub functionality
+      publishButton.addEventListener('click', () => {
+        // For now, just show the configuration form
+        githubConfig.style.display = 'block';
+        statusDiv.textContent = 'Configure GitHub settings below';
       });
     }
   });
