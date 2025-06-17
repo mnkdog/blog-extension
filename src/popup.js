@@ -11,9 +11,18 @@ if (typeof document !== 'undefined') {
     const statusDiv = document.getElementById('status');
     const draftsList = document.getElementById('drafts-list');
     const githubConfig = document.getElementById('github-config');
+    const saveConfigButton = document.getElementById('save-config');
+    const githubTokenInput = document.getElementById('github-token');
+    const githubRepoInput = document.getElementById('github-repo');
     
     if (saveButton && publishButton && titleInput && contentTextarea && window.BrowserDraftStorage) {
       const storage = new window.BrowserDraftStorage();
+      
+      // Check if GitHub is already configured
+      function isGitHubConfigured() {
+        const config = localStorage.getItem('github-config');
+        return config !== null;
+      }
       
       // Function to update drafts list
       function updateDraftsList() {
@@ -97,9 +106,38 @@ if (typeof document !== 'undefined') {
       
       // Publish to GitHub functionality
       publishButton.addEventListener('click', () => {
-        // For now, just show the configuration form
-        githubConfig.style.display = 'block';
-        statusDiv.textContent = 'Configure GitHub settings below';
+        if (!isGitHubConfigured()) {
+          // Show configuration form
+          githubConfig.style.display = 'block';
+          statusDiv.textContent = 'Configure GitHub settings below';
+        } else {
+          // TODO: Actually publish to GitHub
+          statusDiv.textContent = 'Publishing to GitHub...';
+        }
+      });
+      
+      // Save GitHub configuration
+      saveConfigButton.addEventListener('click', () => {
+        const token = githubTokenInput.value.trim();
+        const repo = githubRepoInput.value.trim();
+        
+        if (token && repo) {
+          const config = {
+            token: token,
+            repo: repo
+          };
+          localStorage.setItem('github-config', JSON.stringify(config));
+          githubConfig.style.display = 'none';
+          statusDiv.textContent = 'GitHub configuration saved!';
+          setTimeout(() => statusDiv.textContent = '', 2000);
+        } else {
+          statusDiv.textContent = 'Please fill in both token and repository';
+          statusDiv.style.color = 'red';
+          setTimeout(() => {
+            statusDiv.textContent = '';
+            statusDiv.style.color = 'green';
+          }, 2000);
+        }
       });
     }
   });
