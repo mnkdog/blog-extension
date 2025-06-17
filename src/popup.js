@@ -10,6 +10,7 @@ if (typeof document !== 'undefined') {
     const contentTextarea = document.getElementById('content');
     const statusDiv = document.getElementById('status');
     const draftsList = document.getElementById('drafts-list');
+    const publishedPostsSection = document.getElementById('published-posts');
     const githubConfig = document.getElementById('github-config');
     const saveConfigButton = document.getElementById('save-config');
     const githubTokenInput = document.getElementById('github-token');
@@ -28,6 +29,50 @@ if (typeof document !== 'undefined') {
       function getGitHubConfig() {
         const config = localStorage.getItem('github-config');
         return config ? JSON.parse(config) : null;
+      }
+      
+      // Function to load published posts
+      async function loadPublishedPosts() {
+        if (!isGitHubConfigured()) {
+          publishedPostsSection.innerHTML = '<h4>Published Posts</h4><p>Configure GitHub to see published posts</p>';
+          return;
+        }
+        
+        try {
+          const config = getGitHubConfig();
+          const publisher = new window.BrowserGitHubPublisher(config.token, config.repo);
+          const posts = await publisher.fetchExistingPosts();
+          
+          let postsHTML = '<h4>Published Posts</h4>';
+          
+          if (posts.length === 0) {
+            postsHTML += '<p>No published posts found</p>';
+          } else {
+            const postsContainer = document.createElement('div');
+            posts.forEach(post => {
+              const postDiv = document.createElement('div');
+              postDiv.className = 'post-item';
+              
+              const titleSpan = document.createElement('span');
+              titleSpan.textContent = post.title;
+              titleSpan.style.flex = '1';
+              
+              const editBtn = document.createElement('button');
+              editBtn.textContent = 'Edit';
+              editBtn.className = 'edit-btn';
+              
+              postDiv.appendChild(titleSpan);
+              postDiv.appendChild(editBtn);
+              postsContainer.appendChild(postDiv);
+            });
+            
+            publishedPostsSection.innerHTML = '<h4>Published Posts</h4>';
+            publishedPostsSection.appendChild(postsContainer);
+          }
+        } catch (error) {
+          console.error('Error loading published posts:', error);
+          publishedPostsSection.innerHTML = '<h4>Published Posts</h4><p>Error loading posts</p>';
+        }
       }
       
       // Function to update drafts list
@@ -88,8 +133,9 @@ if (typeof document !== 'undefined') {
         }
       }
       
-      // Load drafts on startup
+      // Load content on startup
       updateDraftsList();
+      loadPublishedPosts();
       
       // Save draft functionality
       saveButton.addEventListener('click', () => {
@@ -147,6 +193,9 @@ if (typeof document !== 'undefined') {
             statusDiv.textContent = 'Successfully published to GitHub!';
             setTimeout(() => statusDiv.textContent = '', 3000);
             
+            // Refresh published posts list
+            loadPublishedPosts();
+            
           } catch (error) {
             console.error('Publishing error:', error);
             statusDiv.textContent = `Error: ${error.message}`;
@@ -173,6 +222,9 @@ if (typeof document !== 'undefined') {
           githubConfig.style.display = 'none';
           statusDiv.textContent = 'GitHub configuration saved!';
           setTimeout(() => statusDiv.textContent = '', 2000);
+          
+          // Load published posts now that GitHub is configured
+          loadPublishedPosts();
         } else {
           statusDiv.textContent = 'Please fill in both token and repository';
           statusDiv.style.color = 'red';
