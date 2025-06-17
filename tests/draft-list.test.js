@@ -43,9 +43,8 @@ describe('Draft List', () => {
     expect(draftsList.innerHTML).toContain('First draft content');
     expect(draftsList.innerHTML).toContain('Second draft content');
   });
-});
 
-  test('should load draft into editor when clicked', () => {
+  test('should load draft into editor when content is clicked', () => {
     const fs = require('fs');
     const path = require('path');
     
@@ -66,11 +65,12 @@ describe('Draft List', () => {
     // Trigger DOMContentLoaded
     document.dispatchEvent(new Event('DOMContentLoaded'));
     
-    // Find and click the draft item
+    // Find the content div inside the draft item and click it
     const draftItem = document.querySelector('.draft-item');
-    expect(draftItem).toBeTruthy();
+    const contentDiv = draftItem.querySelector('div'); // First div is the content
+    expect(contentDiv).toBeTruthy();
     
-    draftItem.click();
+    contentDiv.click();
     
     // Check that content was loaded into textarea
     const textarea = document.getElementById('content');
@@ -120,3 +120,4 @@ describe('Draft List', () => {
     expect(document.body.innerHTML).toContain('Second draft to keep');
     expect(document.body.innerHTML).not.toContain('First draft to delete');
   });
+});
