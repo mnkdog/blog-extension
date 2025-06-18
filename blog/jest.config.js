@@ -9,10 +9,7 @@ const customJestConfig = {
   moduleNameMapping: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  testEnvironment: 'node', // Use node for file system tests
-  transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', { useESM: false }]
-  }
+  testEnvironment: 'node',
 }
 
 module.exports = createJestConfig(customJestConfig)
