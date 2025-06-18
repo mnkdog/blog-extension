@@ -2,6 +2,7 @@
  * @jest-environment jsdom
  */
 import { render, screen } from '@testing-library/react'
+import PostPage from '../[slug]/page'
 
 // Mock the posts library
 jest.mock('../../../lib/posts', () => ({
@@ -19,12 +20,11 @@ jest.mock('../../../lib/posts', () => ({
 }))
 
 describe('Post Page', () => {
-  test('should have getPostBySlug function available', () => {
-    const { getPostBySlug } = require('../../../lib/posts')
-    expect(typeof getPostBySlug).toBe('function')
+  test('should display individual post content', () => {
+    render(<PostPage params={{ slug: 'test-post' }} />)
     
-    const post = getPostBySlug('test-post')
-    expect(post).toBeTruthy()
-    expect(post.title).toBe('Test Post')
+    expect(screen.getByText('Test Post')).toBeInTheDocument()
+    expect(screen.getByText('2025-06-17')).toBeInTheDocument()
+    expect(screen.getByText(/full content of the test post/)).toBeInTheDocument()
   })
 })
