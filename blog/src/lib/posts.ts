@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { marked } from 'marked'
 
 const postsDirectory = path.join(process.cwd(), '..', 'posts')
 
@@ -8,6 +9,10 @@ export interface Post {
   title: string
   content: string
   date: string
+}
+
+export function markdownToHtml(markdown: string): string {
+  return marked(markdown)
 }
 
 export function getAllPosts(): Post[] {
