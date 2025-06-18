@@ -1,8 +1,5 @@
 import fs from 'fs'
 import path from 'path'
-import matter from 'gray-matter'
-import { remark } from 'remark'
-import html from 'remark-html'
 
 const postsDirectory = path.join(process.cwd(), '..', 'posts')
 
@@ -26,16 +23,20 @@ export function getAllPosts(): Post[] {
       const slug = fileName.replace(/\.md$/, '')
       const fullPath = path.join(postsDirectory, fileName)
       const fileContents = fs.readFileSync(fullPath, 'utf8')
-      const matterResult = matter(fileContents)
-
-      // Extract date from filename (YYYY-MM-DD format)
+      
+      // Extract title from content (first # line)
+      const lines = fileContents.trim().split('\n')
+      const titleLine = lines.find(line => line.startsWith('# '))
+      const title = titleLine ? titleLine.replace('# ', '') : 'Untitled'
+      
+      // Extract date from filename
       const dateMatch = fileName.match(/^(\d{4}-\d{2}-\d{2})/)
       const date = dateMatch ? dateMatch[1] : '2025-01-01'
 
       return {
         slug,
-        title: matterResult.data.title || extractTitleFromContent(matterResult.content),
-        content: matterResult.content,
+        title,
+        content: fileContents,
         date,
       }
     })
@@ -44,31 +45,25 @@ export function getAllPosts(): Post[] {
   return allPostsData.sort((a, b) => (a.date < b.date ? 1 : -1))
 }
 
-function extractTitleFromContent(content: string): string {
-  const lines = content.trim().split('\n')
-  const titleLine = lines.find(line => line.startsWith('# '))
-  return titleLine ? titleLine.replace('# ', '') : 'Untitled'
-}
-
-export async function getPostBySlug(slug: string): Promise<Post & { contentHtml: string }> {
+export function getPostBySlug(slug: string): Post | null {
   const fullPath = path.join(postsDirectory, `${slug}.md`)
+  
+  if (!fs.existsSync(fullPath)) {
+    return null
+  }
+  
   const fileContents = fs.readFileSync(fullPath, 'utf8')
-  const matterResult = matter(fileContents)
-
-  // Process markdown
-  const processedContent = await remark()
-    .use(html)
-    .process(matterResult.content)
-  const contentHtml = processedContent.toString()
-
+  const lines = fileContents.trim().split('\n')
+  const titleLine = lines.find(line => line.startsWith('# '))
+  const title = titleLine ? titleLine.replace('# ', '') : 'Untitled'
+  
   const dateMatch = slug.match(/^(\d{4}-\d{2}-\d{2})/)
   const date = dateMatch ? dateMatch[1] : '2025-01-01'
 
   return {
     slug,
-    title: matterResult.data.title || extractTitleFromContent(matterResult.content),
-    content: matterResult.content,
-    contentHtml,
+    title,
+    content: fileContents,
     date,
   }
 }
