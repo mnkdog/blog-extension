@@ -2,7 +2,6 @@
  * @jest-environment jsdom
  */
 import { render, screen } from '@testing-library/react'
-import PostPage from '../[slug]/page'
 
 // Mock the posts library
 jest.mock('../../../lib/posts', () => ({
@@ -19,8 +18,16 @@ jest.mock('../../../lib/posts', () => ({
   }
 }))
 
+// Mock Next.js navigation
+jest.mock('next/navigation', () => ({
+  notFound: jest.fn()
+}))
+
 describe('Post Page', () => {
   test('should display individual post content', () => {
+    // Import the component dynamically to avoid path issues
+    const PostPage = require('../[slug]/page').default
+    
     render(<PostPage params={{ slug: 'test-post' }} />)
     
     expect(screen.getByText('Test Post')).toBeInTheDocument()
