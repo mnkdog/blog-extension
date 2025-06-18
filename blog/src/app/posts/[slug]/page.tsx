@@ -1,4 +1,4 @@
-import { getPostBySlug } from '@/lib/posts'
+import { getPostBySlug, markdownToHtml } from '@/lib/posts'
 import { notFound } from 'next/navigation'
 
 export default function PostPage({ params }: { params: { slug: string } }) {
@@ -8,6 +8,9 @@ export default function PostPage({ params }: { params: { slug: string } }) {
     notFound()
   }
 
+  // Convert markdown to HTML
+  const contentHtml = markdownToHtml(post.content)
+
   return (
     <main className="max-w-4xl mx-auto py-8 px-4">
       <article>
@@ -16,9 +19,10 @@ export default function PostPage({ params }: { params: { slug: string } }) {
           <time className="text-gray-600">{post.date}</time>
         </header>
         
-        <div className="prose prose-lg max-w-none">
-          <div className="whitespace-pre-wrap">{post.content}</div>
-        </div>
+        <div 
+          className="prose prose-lg max-w-none"
+          dangerouslySetInnerHTML={{ __html: contentHtml }}
+        />
       </article>
     </main>
   )
