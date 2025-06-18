@@ -6,7 +6,6 @@ describe('GitHub Publish UI', () => {
   beforeEach(() => {
     localStorage.clear();
     document.body.innerHTML = '';
-    // Clear console.error mock
     jest.clearAllMocks();
   });
 
@@ -14,11 +13,9 @@ describe('GitHub Publish UI', () => {
     const fs = require('fs');
     const path = require('path');
     
-    // Load the HTML
     const html = fs.readFileSync(path.join(__dirname, '../src/popup.html'), 'utf8');
     document.body.innerHTML = html;
     
-    // Should have a publish button
     const publishButton = document.getElementById('publish');
     expect(publishButton).toBeTruthy();
     expect(publishButton.textContent).toContain('Publish');
@@ -28,35 +25,27 @@ describe('GitHub Publish UI', () => {
     const fs = require('fs');
     const path = require('path');
     
-    // Suppress console.error for this test
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     
-    // Load the HTML
     const html = fs.readFileSync(path.join(__dirname, '../src/popup.html'), 'utf8');
     document.body.innerHTML = html;
     
-    // Load scripts with proper browser environment
     require('../src/browser-storage');
-    // Mock the browser GitHub publisher to avoid constructor errors
     window.BrowserGitHubPublisher = class MockBrowserGitHubPublisher {
       constructor() {}
       fetchExistingPosts() { return Promise.resolve([]); }
     };
     require('../src/popup');
     
-    // Trigger DOMContentLoaded
     document.dispatchEvent(new Event('DOMContentLoaded'));
     
-    // Click publish button
     const publishButton = document.getElementById('publish');
     publishButton.click();
     
-    // Should show configuration form
     const configForm = document.getElementById('github-config');
     expect(configForm).toBeTruthy();
     expect(configForm.style.display).not.toBe('none');
     
-    // Should have inputs for token and repo
     expect(document.getElementById('github-token')).toBeTruthy();
     expect(document.getElementById('github-repo')).toBeTruthy();
     
@@ -67,14 +56,11 @@ describe('GitHub Publish UI', () => {
     const fs = require('fs');
     const path = require('path');
     
-    // Suppress console.error for this test
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     
-    // Load the HTML
     const html = fs.readFileSync(path.join(__dirname, '../src/popup.html'), 'utf8');
     document.body.innerHTML = html;
     
-    // Load scripts with mocked browser environment
     require('../src/browser-storage');
     window.BrowserGitHubPublisher = class MockBrowserGitHubPublisher {
       constructor() {}
@@ -82,14 +68,11 @@ describe('GitHub Publish UI', () => {
     };
     require('../src/popup');
     
-    // Trigger DOMContentLoaded
     document.dispatchEvent(new Event('DOMContentLoaded'));
     
-    // Show config form
     const publishButton = document.getElementById('publish');
     publishButton.click();
     
-    // Fill in configuration
     const tokenInput = document.getElementById('github-token');
     const repoInput = document.getElementById('github-repo');
     const saveConfigButton = document.getElementById('save-config');
@@ -97,10 +80,8 @@ describe('GitHub Publish UI', () => {
     tokenInput.value = 'test-token-123';
     repoInput.value = 'username/my-blog';
     
-    // Click save config
     saveConfigButton.click();
     
-    // Should save to localStorage
     const savedConfig = localStorage.getItem('github-config');
     expect(savedConfig).toBeTruthy();
     
@@ -125,39 +106,47 @@ describe('GitHub Publish UI', () => {
       })
     );
     
-    // Pre-configure GitHub settings
     localStorage.setItem('github-config', JSON.stringify({
       token: 'test-token',
       repo: 'user/test-repo'
     }));
     
-    // Load the HTML
     const html = fs.readFileSync(path.join(__dirname, '../src/popup.html'), 'utf8');
     document.body.innerHTML = html;
     
-    // Load scripts in correct order with proper mocking
     require('../src/browser-storage');
+    // Use a mock that actually calls fetch
     window.BrowserGitHubPublisher = class MockBrowserGitHubPublisher {
       constructor() {}
       fetchExistingPosts() { return Promise.resolve([]); }
-      publishPost() { return Promise.resolve({}); }
+      async publishPost(postData) {
+        // Actually call fetch like the real implementation
+        const response = await fetch('https://api.github.com/repos/user/test-repo/contents/posts/test.md', {
+          method: 'PUT',
+          headers: {
+            'Authorization': 'token test-token',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: `Add new post: ${postData.title}`,
+            content: 'base64content'
+          })
+        });
+        return response.json();
+      }
     };
     require('../src/popup');
     
-    // Trigger DOMContentLoaded
     document.dispatchEvent(new Event('DOMContentLoaded'));
     
-    // Fill in title and content
     const titleInput = document.getElementById('title');
     const contentTextarea = document.getElementById('content');
     titleInput.value = 'Test Blog Post';
     contentTextarea.value = 'This is my test content.';
     
-    // Click publish
     const publishButton = document.getElementById('publish');
     publishButton.click();
     
-    // Wait a moment for async operations
     await new Promise(resolve => setTimeout(resolve, 100));
     
     // Should have called GitHub API
