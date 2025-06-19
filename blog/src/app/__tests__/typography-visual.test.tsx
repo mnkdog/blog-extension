@@ -1,7 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-import { render } from '@testing-library/react'
+import { render, cleanup } from '@testing-library/react'
 
 // Mock the posts library  
 jest.mock('../../lib/posts', () => ({
@@ -18,15 +18,17 @@ jest.mock('../../lib/posts', () => ({
 jest.mock('next/navigation', () => ({ notFound: jest.fn() }))
 
 describe('Typography Visual Styling', () => {
+  afterEach(() => {
+    cleanup()
+  })
+
   test('should have prose container for markdown content', () => {
     const PostPage = require('../posts/[slug]/page').default
     const { container } = render(<PostPage params={{ slug: 'test-post' }} />)
     
-    // The prose class should be on the container div
     const proseContainer = container.querySelector('.prose')
     expect(proseContainer).toBeTruthy()
     
-    // And it should contain the markdown HTML
     expect(proseContainer?.innerHTML).toContain('<h1>Large Heading</h1>')
     expect(proseContainer?.innerHTML).toContain('<h2>Medium Heading</h2>')
     expect(proseContainer?.innerHTML).toContain('<p>Normal text.</p>')
