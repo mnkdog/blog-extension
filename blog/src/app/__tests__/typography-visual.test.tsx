@@ -18,17 +18,17 @@ jest.mock('../../lib/posts', () => ({
 jest.mock('next/navigation', () => ({ notFound: jest.fn() }))
 
 describe('Typography Visual Styling', () => {
-  test('should have different font sizes for headings', () => {
+  test('should have prose container for markdown content', () => {
     const PostPage = require('../posts/[slug]/page').default
     const { container } = render(<PostPage params={{ slug: 'test-post' }} />)
     
-    const h1 = container.querySelector('h1')
-    const h2 = container.querySelector('h2') 
-    const p = container.querySelector('p')
+    // The prose class should be on the container div
+    const proseContainer = container.querySelector('.prose')
+    expect(proseContainer).toBeTruthy()
     
-    // This will fail because Tailwind typography isn't configured yet
-    expect(h1).toHaveClass('prose')
-    expect(h2).toHaveClass('prose')
-    expect(p).toHaveClass('prose')
+    // And it should contain the markdown HTML
+    expect(proseContainer?.innerHTML).toContain('<h1>Large Heading</h1>')
+    expect(proseContainer?.innerHTML).toContain('<h2>Medium Heading</h2>')
+    expect(proseContainer?.innerHTML).toContain('<p>Normal text.</p>')
   })
 })
