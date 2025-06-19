@@ -1,9 +1,12 @@
 import { getPostBySlug, markdownToHtml } from '@/lib/posts'
 import { notFound } from 'next/navigation'
 
-export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
-  const post = getPostBySlug(slug)
+interface PostPageProps {
+  params: { slug: string }
+}
+
+export default function PostPage({ params }: PostPageProps) {
+  const post = getPostBySlug(params.slug)
   
   if (!post) {
     notFound()
